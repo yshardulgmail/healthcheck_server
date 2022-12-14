@@ -1,0 +1,26 @@
+{
+  "name": "healthcheck_server",
+  "version": "1.0.0",
+  "description": "Server for healthcheck webapp",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node js",
+    "sql server",
+    "mssql",
+    "crud",
+    "express",
+    "sequelize",
+    "rest api"
+  ],
+  "author": "Monika Shukla",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mssql": "^9.0.1",
+    "sequelize": "^6.6.5",
+    "tedious": "^11.4.0"
+  }
+}
