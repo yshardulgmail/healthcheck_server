@@ -33,7 +33,8 @@ exports.findAllAppStatus = (req, res) => {
         
         if (err) console.log(err)
 
-        res.send(recordset);
+
+        res.send(recordset.recordsets[0]);
         
     });
   });
