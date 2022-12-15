@@ -1,12 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
   const Applications = sequelize.define("applications", {
-    timestamps: false,
-
-  // If don't want createdAt
-  createdAt: false,
-
-  // If don't want updatedAt
-  updatedAt: false,
+   
     app_id: {
       type: Sequelize.INTEGER,
       primaryKey: true
@@ -20,7 +14,13 @@ module.exports = (sequelize, Sequelize) => {
     server: {
       type: Sequelize.STRING
     }
-  });
+  },{ timestamps: false,
+
+    // If don't want createdAt
+    createdAt: false,
+  
+    // If don't want updatedAt
+    updatedAt: false});
 
   return Applications;
 };
