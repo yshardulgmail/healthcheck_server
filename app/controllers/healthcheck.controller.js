@@ -47,10 +47,40 @@ exports.findAllApplications = (req, res) => {
   Applications.findAll({
     include: [{
       model: AppStatus,
-      where: {app_id: AppStatus.app_id},
+      // where: {app_id: AppStatus.app_id},
       required: true
   }]
   })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving applications."
+      });
+    });
+};
+
+exports.findApplications = (req, res) => {
+  console.log(Applications);
+  console.log(AppStatus);
+  Applications.findAll()
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving applications."
+      });
+    });
+};
+
+exports.findAppStatus = (req, res) => {
+  console.log(Applications);
+  console.log(AppStatus);
+  AppStatus.findAll()
     .then(data => {
       res.send(data);
     })

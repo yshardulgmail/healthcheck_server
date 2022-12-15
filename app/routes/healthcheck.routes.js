@@ -4,7 +4,10 @@ module.exports = app => {
   var router = require("express").Router();
 
   router.get("/appstatus", healthcheck.findAllAppStatus);
-  router.get("/applications", healthcheck.findAllApplications);
+  router.get("/application", healthcheck.findAllApplications);
+  router.get("/appstatuses", healthcheck.findAppStatus);
+  router.get("/applications", healthcheck.findApplications);
+
 
   app.use('/api/healthcheck', router);
 };
