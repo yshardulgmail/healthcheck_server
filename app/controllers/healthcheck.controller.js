@@ -20,9 +20,6 @@ const sqlConfig = {
 }
 
 exports.findAllAppStatus = (req, res) => {
-  // AppStatus.belongsTo(Applications, {foreignKey: 'app_id'});
-  console.log(Applications);
-  console.log(AppStatus);
   sql.connect(sqlConfig, function (err) {
   
     if (err) console.log(err);
@@ -43,8 +40,6 @@ exports.findAllAppStatus = (req, res) => {
 exports.findAllApplications = (req, res) => {
   Applications.hasMany(AppStatus, {foreignKey: 'app_id'})
   AppStatus.belongsTo(Applications, {foreignKey: 'app_id'});
-  console.log(Applications);
-  console.log(AppStatus);
   Applications.findAll({
     include: [{
       model: AppStatus,
@@ -64,8 +59,6 @@ exports.findAllApplications = (req, res) => {
 };
 
 exports.findApplications = (req, res) => {
-  console.log(Applications);
-  console.log(AppStatus);
   Applications.findAll()
     .then(data => {
       res.send(data);
@@ -79,8 +72,6 @@ exports.findApplications = (req, res) => {
 };
 
 exports.findAppStatus = (req, res) => {
-  console.log(Applications);
-  console.log(AppStatus);
   AppStatus.findAll()
     .then(data => {
       res.send(data);
@@ -92,5 +83,3 @@ exports.findAppStatus = (req, res) => {
       });
     });
 };
-
-
