@@ -30,6 +30,12 @@ app.get("/", (req, res) => {
 
 require("./app/routes/healthcheck.routes")(app);
 
+const healthcheck = require("./app/controllers/healthcheck.controller.js");
+const cron = require('node-cron');
+cron.schedule('* * * * *', function() {
+  healthcheck.saveAppStatus();
+});
+
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {

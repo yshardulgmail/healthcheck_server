@@ -1,4 +1,5 @@
 const db = require("../models");
+const fetch = require("node-fetch")
 const Applications = db.applications;
 const AppStatus = db.app_status;
 const sql = require("mssql");
@@ -81,5 +82,31 @@ exports.findAppStatus = (req, res) => {
         message:
           err.message || "Some error occurred while retrieving applications."
       });
+    });
+};
+
+exports.saveAppStatus = () => {
+  Applications.findAll()
+    .then(data => {
+      
+      for (const [key, value] of Object.entries(data)) {
+        console.log(value["dataValues"]);
+        appUrl = value["dataValues"]["app_url"]
+        fetch(appUrl)
+        .then(res => res.text())
+        .then(text => {
+          console.log("fetched")
+          let status = "";
+          if(text.toLowerCase().includes("\"up\"")) {
+            status = "UP";
+          }
+          else if(text.toLowerCase().includes("\"down\"")) {
+            status = "DOWN";
+          }
+        });
+      }
+    })
+    .catch(err => {
+      throw err
     });
 };
