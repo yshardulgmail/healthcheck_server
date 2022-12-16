@@ -1,9 +1,10 @@
 const db = require("../models");
-const fetch = require("node-fetch")
+const fetch = require("node-fetch");
 const Applications = db.applications;
 const AppStatus = db.app_status;
 const sql = require("mssql");
 const dbConfig = require("../config/db.config.js");
+// const date = require('date-and-time');
 
 const sqlConfig = {
   user: dbConfig.USER,
@@ -27,7 +28,7 @@ exports.findAllAppStatus = (req, res) => {
 
     var request = new sql.Request();
        
-    request.query('select app.app_id APP_ID, app_name, app_url, server, check_time, status from applications app inner join app_status s on app.app_id = s.app_id', function (err, recordset) {
+    request.query('select app.app_id APP_ID, app_name, app_url, server, check_time, status from applications app inner join app_status s on app.app_id = s.app_id order by check_time', function (err, recordset) {
         
         if (err) console.log(err)
 
@@ -96,13 +97,30 @@ exports.saveAppStatus = () => {
         .then(res => res.text())
         .then(text => {
           console.log("fetched")
-          let status = "";
+          let status = "DOWN";
+          const nowTime =  new Date();
           if(text.toLowerCase().includes("\"up\"")) {
             status = "UP";
           }
-          else if(text.toLowerCase().includes("\"down\"")) {
-            status = "DOWN";
-          }
+
+          sql.connect(sqlConfig, function (err) {
+            if (err) console.log(err);        
+            const request = new sql.Request();
+            const date = new Date();
+            let hours = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
+            const am_pm = date.getHours() >= 12 ? "PM" : "AM";
+            hours = hours < 10 ? "0" + hours : hours;
+            const minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+            const time = hours + ":" + minutes + am_pm;
+            const insertQuery = "insert into app_status values(" + value["dataValues"]["app_id"] 
+                                                                 + ", '" + time 
+                                                                 + "', '" + status + "')"
+            request.query(insertQuery, function (err, recordset) {
+                if (err) console.log(err)
+                // res.send(recordset.recordsets[0]);
+            });
+            console.log(insertQuery);
+          });
         });
       }
     })

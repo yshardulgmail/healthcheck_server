@@ -32,10 +32,12 @@ require("./app/routes/healthcheck.routes")(app);
 
 const healthcheck = require("./app/controllers/healthcheck.controller.js");
 const cron = require('node-cron');
-cron.schedule('* * * * *', function() {
+cron.schedule('30 * * * *', function() {
+  console.log("running");
   healthcheck.saveAppStatus();
 });
 
+// setTimeout(healthcheck.saveAppStatus, 60 * 1000);
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
