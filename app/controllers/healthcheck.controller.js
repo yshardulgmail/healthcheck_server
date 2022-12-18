@@ -28,7 +28,7 @@ exports.findAllAppStatus = (req, res) => {
 
     var request = new sql.Request();
        
-    request.query('select app.app_id APP_ID, app_name, app_url, server, check_time, status from applications app inner join app_status s on app.app_id = s.app_id order by check_time', function (err, recordset) {
+    request.query("select app.app_id APP_ID, app_name, app_url, server, format(check_time, 'hh:mm tt') as check_time, status from applications app inner join app_status s on app.app_id = s.app_id order by check_time", function (err, recordset) {
         
         if (err) console.log(err)
 
@@ -97,7 +97,12 @@ exports.saveAppStatus = () => {
         .then(res => res.text())
         .then(text => {
           console.log("fetched")
-          let status = "DOWN";
+          // let status = "DOWN";
+
+          // This is random status generator. Need to remove when app urls are working
+          const statuses = ["UP", "DOWN"];
+          let status = statuses[Math.floor(Math.random() * statuses.length)];
+
           const nowTime =  new Date();
           if(text.toLowerCase().includes("\"up\"")) {
             status = "UP";
@@ -113,8 +118,8 @@ exports.saveAppStatus = () => {
             const minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
             const time = hours + ":" + minutes + am_pm;
             const insertQuery = "insert into app_status values(" + value["dataValues"]["app_id"] 
-                                                                 + ", '" + time 
-                                                                 + "', '" + status + "')"
+                                                                 + ", CAST(format(GETDATE(), 'hh:mm') as TIME), '" 
+                                                                 + status + "')"
             request.query(insertQuery, function (err, recordset) {
                 if (err) console.log(err)
                 // res.send(recordset.recordsets[0]);
