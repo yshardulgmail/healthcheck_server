@@ -32,7 +32,7 @@ require("./app/routes/healthcheck.routes")(app);
 
 const healthcheck = require("./app/controllers/healthcheck.controller.js");
 const cron = require('node-cron');
-cron.schedule('15 * * * *', function() {
+cron.schedule('10 * * * *', function() {
   console.log("running");
   healthcheck.saveAppStatus();
 });

@@ -19,7 +19,7 @@ const sqlConfig = {
   options: {
     trustServerCertificate: true
   }
-}
+};
 
 exports.findAllAppStatus = (req, res) => {
   sql.connect(sqlConfig, function (err) {
@@ -64,7 +64,18 @@ exports.findAllAppStatus = (req, res) => {
                   newAppData["check_time"] = current_time;
                   newAppData["status"] = status;
                   return newAppData;
+                })
+                .catch(err => {
+                  const newAppData = {};
+                  newAppData["APP_ID"] = appData["app_id"];
+                  newAppData["app_name"] = appData["app_name"];
+                  newAppData["app_url"] = appData["app_url"];
+                  newAppData["server"] = appData["server"];
+                  newAppData["check_time"] = current_time;
+                  newAppData["status"] = "DOWN";
+                  return newAppData;
                 });
+
             })).then(data1 => {
               data1.map(newAppData => resultSet.push(newAppData));
               console.log(resultSet.length);
@@ -90,28 +101,28 @@ exports.findAllApplications = (req, res) => {
       required: true
     }]
   })
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving applications."
-      });
+  .then(data => {
+    res.send(data);
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "Some error occurred while retrieving applications."
     });
+  });
 };
 
 exports.findApplications = (req, res) => {
   Applications.findAll()
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving applications."
-      });
+  .then(data => {
+    res.send(data);
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "Some error occurred while retrieving applications."
     });
+  });
 };
 
 exports.findApplicationStatus = (req, res) => {
@@ -119,36 +130,36 @@ exports.findApplicationStatus = (req, res) => {
   Applications.findAll({
     where: { app_id: req.params.appId },
   })
-    .then(data => {
-      if (data.length > 0) {
-        appUrl = data[0]["dataValues"]["app_url"]
-        fetch(appUrl)
-          .then(res => res.text())
-          .then(text => {
-            console.log("fetched", text)
-            // let status = "DOWN";
+  .then(data => {
+    if (data.length > 0) {
+      appUrl = data[0]["dataValues"]["app_url"]
+      fetch(appUrl)
+        .then(res => res.text())
+        .then(text => {
+          console.log("fetched", text)
+          // let status = "DOWN";
 
-            // This is random status generator. Need to remove when app urls are working
-            const statuses = ["UP", "DOWN"];
-            let status = statuses[Math.floor(Math.random() * statuses.length)];
+          // This is random status generator. Need to remove when app urls are working
+          const statuses = ["UP", "DOWN"];
+          let status = statuses[Math.floor(Math.random() * statuses.length)];
 
-            if (text.includes("UP") || text.toLowerCase().includes("running")) {
-              status = "UP";
-            }
+          if (text.includes("UP") || text.toLowerCase().includes("running")) {
+            status = "UP";
+          }
 
-            res.send('"status": "' + status + '"')
-          });
-      }
-      else {
-        throw Error("Application not found");
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving applications."
-      });
+          res.send('"status": "' + status + '"')
+        });
+    }
+    else {
+      throw Error("Application not found");
+    }
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "Some error occurred while retrieving applications."
     });
+  });
 };
 
 exports.findAppStatus = (req, res) => {
@@ -167,47 +178,46 @@ exports.findAppStatus = (req, res) => {
 exports.saveAppStatus = () => {
   Applications.findAll()
     .then(data => {
+    for (const [key, value] of Object.entries(data)) {
+      console.log(value["dataValues"]);
+      appUrl = value["dataValues"]["app_url"]
+      fetch(appUrl)
+        .then(res => res.text())
+        .then(text => {
+        console.log("fetched")
+        // let status = "DOWN";
 
-      for (const [key, value] of Object.entries(data)) {
-        console.log(value["dataValues"]);
-        appUrl = value["dataValues"]["app_url"]
-        fetch(appUrl)
-          .then(res => res.text())
-          .then(text => {
-            console.log("fetched")
-            // let status = "DOWN";
+        // This is random status generator. Need to remove when app urls are working
+        const statuses = ["UP", "DOWN"];
+        let status = statuses[Math.floor(Math.random() * statuses.length)];
 
-            // This is random status generator. Need to remove when app urls are working
-            const statuses = ["UP", "DOWN"];
-            let status = statuses[Math.floor(Math.random() * statuses.length)];
+        const nowTime = new Date();
+        if (text.includes("UP") || text.toLowerCase().includes("running")) {
+          status = "UP";
+        }
 
-            const nowTime = new Date();
-            if (text.includes("UP") || text.toLowerCase().includes("running")) {
-              status = "UP";
-            }
-
-            sql.connect(sqlConfig, function (err) {
-              if (err) console.log(err);
-              const request = new sql.Request();
-              const date = new Date();
-              let hours = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
-              const am_pm = date.getHours() >= 12 ? "PM" : "AM";
-              hours = hours < 10 ? "0" + hours : hours;
-              const minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-              const time = hours + ":" + minutes + am_pm;
-              const insertQuery = "insert into app_status values(" + value["dataValues"]["app_id"]
-                + ", GETDATE(), '"
-                + status + "')"
-              request.query(insertQuery, function (err, recordset) {
-                if (err) console.log(err)
-                // res.send(recordset.recordsets[0]);
-              });
-              console.log(insertQuery);
-            });
+        sql.connect(sqlConfig, function (err) {
+          if (err) console.log(err);
+          const request = new sql.Request();
+          const date = new Date();
+          let hours = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
+          const am_pm = date.getHours() >= 12 ? "PM" : "AM";
+          hours = hours < 10 ? "0" + hours : hours;
+          const minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+          const time = hours + ":" + minutes + am_pm;
+          const insertQuery = "insert into app_status values(" + value["dataValues"]["app_id"]
+            + ", GETDATE(), '"
+            + status + "')"
+          request.query(insertQuery, function (err, recordset) {
+            if (err) console.log(err)
+            // res.send(recordset.recordsets[0]);
           });
-      }
-    })
-    .catch(err => {
-      throw err
-    });
+          console.log(insertQuery);
+        });
+      });
+    }
+  })
+  .catch(err => {
+    throw err
+  });
 };
