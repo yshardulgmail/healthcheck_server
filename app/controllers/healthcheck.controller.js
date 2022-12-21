@@ -137,12 +137,9 @@ exports.findApplicationStatus = (req, res) => {
         .then(res => res.text())
         .then(text => {
           console.log("fetched", text)
-          // let status = "DOWN";
+          let status = "DOWN";
 
-          // This is random status generator. Need to remove when app urls are working
-          const statuses = ["UP", "DOWN"];
-          let status = statuses[Math.floor(Math.random() * statuses.length)];
-
+          
           if (text.includes("UP") || text.toLowerCase().includes("running")) {
             status = "UP";
           }
@@ -185,11 +182,11 @@ exports.saveAppStatus = () => {
         .then(res => res.text())
         .then(text => {
         console.log("fetched")
-        // let status = "DOWN";
+        let status = "DOWN";
 
         // This is random status generator. Need to remove when app urls are working
-        const statuses = ["UP", "DOWN"];
-        let status = statuses[Math.floor(Math.random() * statuses.length)];
+        // const statuses = ["UP", "DOWN"];
+        // let status = statuses[Math.floor(Math.random() * statuses.length)];
 
         const nowTime = new Date();
         if (text.includes("UP") || text.toLowerCase().includes("running")) {
