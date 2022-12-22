@@ -140,7 +140,7 @@ exports.findApplicationStatus = (req, res) => {
           let status = "DOWN";
 
           
-          if (text.includes("UP") || text.toLowerCase().includes("running")) {
+          if (text.includes("UP") || text.toLowerCase().includes("running") || text.toLowerCase().includes("username")) {
             status = "UP";
           }
 
@@ -183,7 +183,7 @@ exports.saveAppStatus = () => {
         .then(res => res.text())
         .then(text => {
         console.log("fetched")
-        if (text.includes("UP") || text.toLowerCase().includes("running")) {
+        if (text.includes("UP") || text.toLowerCase().includes("running") || text.toLowerCase().includes("username")) {
           status = "UP";
         }
 
