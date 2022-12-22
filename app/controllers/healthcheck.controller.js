@@ -178,17 +178,11 @@ exports.saveAppStatus = () => {
     for (const [key, value] of Object.entries(data)) {
       console.log(value["dataValues"]);
       appUrl = value["dataValues"]["app_url"]
+      let status = "DOWN";
       fetch(appUrl)
         .then(res => res.text())
         .then(text => {
         console.log("fetched")
-        let status = "DOWN";
-
-        // This is random status generator. Need to remove when app urls are working
-        // const statuses = ["UP", "DOWN"];
-        // let status = statuses[Math.floor(Math.random() * statuses.length)];
-
-        const nowTime = new Date();
         if (text.includes("UP") || text.toLowerCase().includes("running")) {
           status = "UP";
         }
@@ -196,12 +190,20 @@ exports.saveAppStatus = () => {
         sql.connect(sqlConfig, function (err) {
           if (err) console.log(err);
           const request = new sql.Request();
-          const date = new Date();
-          let hours = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
-          const am_pm = date.getHours() >= 12 ? "PM" : "AM";
-          hours = hours < 10 ? "0" + hours : hours;
-          const minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-          const time = hours + ":" + minutes + am_pm;
+          const insertQuery = "insert into app_status values(" + value["dataValues"]["app_id"]
+            + ", GETDATE(), '"
+            + status + "')"
+          request.query(insertQuery, function (err, recordset) {
+            if (err) console.log(err)
+            // res.send(recordset.recordsets[0]);
+          });
+          console.log(insertQuery);
+        });
+      })
+      .catch(err => {
+        sql.connect(sqlConfig, function (err) {
+          if (err) console.log(err);
+          const request = new sql.Request();
           const insertQuery = "insert into app_status values(" + value["dataValues"]["app_id"]
             + ", GETDATE(), '"
             + status + "')"
