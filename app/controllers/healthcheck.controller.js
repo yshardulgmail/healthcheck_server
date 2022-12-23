@@ -28,14 +28,15 @@ exports.findAllAppStatus = (req, res) => {
 
     var request = new sql.Request();
 
-    request.query("select app.app_id APP_ID, app_name, app_url, server, format(check_time, 'hh:mm tt') as check_time, status from applications app inner join app_status s on app.app_id = s.app_id order by check_time", function (err, recordset) {
+    request.query("select app.app_id APP_ID, app_name, app_url, server, check_time, status from applications app inner join app_status s on app.app_id = s.app_id order by check_time", function (err, recordset) {
 
       if (err) console.log(err)
+      console.log(recordset);
       const resultSet = [...recordset.recordsets[0]];
 
       if (manual == "true") {
         let current_time = "";
-        request.query("select format(GETDATE(), 'hh:mm tt') as check_time", function (err, timeStr) {
+        request.query("select GETDATE() as check_time", function (err, timeStr) {
           current_time = timeStr["recordset"][0]["check_time"];
           console.log(current_time);
         });
