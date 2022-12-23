@@ -8,6 +8,8 @@ module.exports = app => {
   router.get("/appstatuses", healthcheck.findAppStatus);
   router.get("/applications", healthcheck.findApplications);
   router.get("/application/:appId", healthcheck.findApplicationStatus);
+  router.get("/saveAppStatus", healthcheck.saveAppStatus);
+  
 
 
   app.use('/api/healthcheck', router);

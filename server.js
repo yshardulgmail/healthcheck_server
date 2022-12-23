@@ -34,7 +34,7 @@ const healthcheck = require("./app/controllers/healthcheck.controller.js");
 const cron = require('node-cron');
 cron.schedule('10 5 * * * *', () => {
   console.log("running");
-  healthcheck.saveAppStatus();
+  healthcheck.saveAppStatus(null, null);
 });
 
 setTimeout(healthcheck.saveAppStatus, 60 * 1000);

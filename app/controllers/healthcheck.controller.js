@@ -47,7 +47,12 @@ exports.findAllAppStatus = (req, res) => {
           .then((data) => {
             Promise.all(data.map(appData => {
               appUrl = appData["app_url"];
-              return fetch(appUrl).then(res1 => res1.text())
+              return fetch(appUrl).then(res1 => {
+                  if(!res1.ok) {
+                    throw Error("Got HTTP Status: " + res1.status);
+                  }
+                  return res1.text();
+                })
                 .then(text => {
                   let status = "DOWN";
 
@@ -173,15 +178,19 @@ exports.findAppStatus = (req, res) => {
     });
 };
 
-exports.saveAppStatus = () => {
+exports.saveAppStatus = (req, res) => {
   Applications.findAll()
     .then(data => {
     for (const [key, value] of Object.entries(data)) {
-      console.log(value["dataValues"]);
+      // console.log(value["dataValues"]);
       appUrl = value["dataValues"]["app_url"]
       let status = "DOWN";
       fetch(appUrl)
-        .then(res => res.text())
+        .then(res => {
+          if(!res.ok) {
+            throw Error("Got HTTP Status: " + res.status);
+          }
+          return res.text();})
         .then(text => {
         console.log("fetched")
         if (text.includes("UP") || text.toLowerCase().includes("running") || text.toLowerCase().includes("username")) {
@@ -202,6 +211,7 @@ exports.saveAppStatus = () => {
         });
       })
       .catch(err => {
+        console.log(err);
         sql.connect(sqlConfig, function (err) {
           if (err) console.log(err);
           const request = new sql.Request();
@@ -216,6 +226,8 @@ exports.saveAppStatus = () => {
         });
       });
     }
+
+    res && res.send("OK");
   })
   .catch(err => {
     throw err
