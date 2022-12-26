@@ -31,7 +31,6 @@ exports.findAllAppStatus = (req, res) => {
     request.query("select app.app_id APP_ID, app_name, app_url, server, check_time, status from applications app inner join app_status s on app.app_id = s.app_id order by check_time", function (err, recordset) {
 
       if (err) console.log(err)
-      console.log(recordset);
       const resultSet = [...recordset.recordsets[0]];
 
       if (manual == "true") {
@@ -84,7 +83,6 @@ exports.findAllAppStatus = (req, res) => {
 
             })).then(data1 => {
               data1.map(newAppData => resultSet.push(newAppData));
-              console.log(resultSet.length);
               res.send(resultSet);
             });
           });
