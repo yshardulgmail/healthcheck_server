@@ -4,10 +4,7 @@ module.exports = (sequelize, Sequelize) => {
     app_id: {
       type: Sequelize.INTEGER,
       references: {
-        // This is a reference to another model
         model: application,
-   
-        // This is the column name of the referenced model
         key: 'app_id'
    
       }

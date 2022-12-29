@@ -24,6 +24,8 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.applications = require("./applications.model.js")(sequelize, Sequelize);
+db.jobs = require("./jobs.model.js")(sequelize, Sequelize);
+db.batch_jobs = require("./batch_jobs.model.js")(sequelize, Sequelize);
 db.app_status = require("./app_status.model.js")(sequelize, Sequelize);
 
 module.exports = db;

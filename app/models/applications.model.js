@@ -15,11 +15,7 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING
     }
   },{ timestamps: false,
-
-    // If don't want createdAt
     createdAt: false,
-  
-    // If don't want updatedAt
     updatedAt: false});
 
   return Applications;
