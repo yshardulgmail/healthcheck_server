@@ -1,42 +1,34 @@
-# Node.js CRUD example with SQL Server (MSSQL) - Express Rest APIs and Sequelize
+## Available Scripts
 
-For more detail, please visit:
-> [Node.js CRUD example with SQL Server (MSSQL)](https://www.bezkoder.com/node-js-sql-server-crud/)
+In the project directory, you can run:
 
-Front-end that works well with this Back-end
-> [Axios Client](https://www.bezkoder.com/axios-request/)
+### `npm start`
 
-> [Angular 8 Client](https://bezkoder.com/angular-crud-app/) / [Angular 10 Client](https://bezkoder.com/angular-10-crud-app/) / [Angular 11 Client](https://bezkoder.com/angular-11-crud-app/) / [Angular 12 Client](https://bezkoder.com/angular-12-crud-app/)
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-> [Vue 2 Client](https://bezkoder.com/vue-js-crud-app/) / [Vue 3 Client](https://bezkoder.com/vue-3-crud/) / [Vuetify Client](https://bezkoder.com/vuetify-data-table-example/)
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-> [React Client](https://bezkoder.com/react-crud-web-api/) / [React Redux Client](https://bezkoder.com/react-redux-crud-example/)
+### `npm run build`
 
-More Practice:
-> [Server side Pagination in Node.js with Sequelize](https://www.bezkoder.com/node-js-sequelize-pagination-mysql/)
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-> [Node.js Express File Upload Rest API example](https://www.bezkoder.com/node-js-express-file-upload/)
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-> [Node.js Express File Upload with Google Cloud Storage example](https://www.bezkoder.com/google-cloud-storage-nodejs-upload-file/)
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-Associations:
-> [Sequelize Associations: One-to-Many Relationship example](https://www.bezkoder.com/sequelize-associate-one-to-many/)
 
-> [Sequelize Associations: Many-to-Many Relationship example](https://www.bezkoder.com/sequelize-associate-many-to-many/)
+## Nodejs installation
+1. sudo apt update
+2. sudo apt install nodejs
+3. Verify intallation with command: node -v
 
-Integration (run back-end & front-end on same server/port)
-> [Integrate React with Node.js Restful Services](https://www.bezkoder.com/integrate-react-express-same-server-port/)
 
-> [Integrate Angular with Node.js Restful Services](https://www.bezkoder.com/integrate-angular-10-node-js/)
-
-> [Integrate Vue with Node.js Restful Services](https://www.bezkoder.com/serve-vue-app-express/)
-
-## Project setup
-```
-npm install
-```
-
-### Run
-```
-node server.js
-```
+Steps to Deploy - 
+1. Delete node_modules folder and package-lock.json file.
+2. Copy cloned repo to server.
+3. Change dir to the copied folder.
+4. Run command: npm install && npm start

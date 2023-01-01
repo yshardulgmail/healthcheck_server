@@ -2,6 +2,7 @@ const db = require("../models");
 const fetch = require("node-fetch");
 const Applications = db.applications;
 const Jobs = db.jobs;
+const JobsLogs = db.jobs_logs;
 const BatchJobs = db.batch_jobs;
 const AppStatus = db.app_status;
 const sql = require("mssql");
@@ -45,49 +46,49 @@ exports.findAllAppStatus = (req, res) => {
 				Applications.findAll({
 					raw: true,
 				})
-				.then((data) => {
-					Promise.all(data.map(appData => {
-						appUrl = appData["app_url"];
-						return fetch(appUrl).then(res1 => {
-							if (!res1.ok) {
-								throw Error("Got HTTP Status: " + res1.status);
-							}
-							return res1.text();
-						})
-							.then(text => {
-								let status = "DOWN";
-
-								// This is random status generator. Need to remove when app urls are working
-								// const statuses = ["UP", "DOWN"];
-								// let status = statuses[Math.floor(Math.random() * statuses.length)];
-								if (text.includes("UP") || text.toLowerCase().includes("running")) {
-									status = "UP";
+					.then((data) => {
+						Promise.all(data.map(appData => {
+							appUrl = appData["app_url"];
+							return fetch(appUrl).then(res1 => {
+								if (!res1.ok) {
+									throw Error("Got HTTP Status: " + res1.status);
 								}
-								const newAppData = {};
-								newAppData["APP_ID"] = appData["app_id"];
-								newAppData["app_name"] = appData["app_name"];
-								newAppData["app_url"] = appData["app_url"];
-								newAppData["server"] = appData["server"];
-								newAppData["check_time"] = current_time;
-								newAppData["status"] = status;
-								return newAppData;
+								return res1.text();
 							})
-							.catch(err => {
-								const newAppData = {};
-								newAppData["APP_ID"] = appData["app_id"];
-								newAppData["app_name"] = appData["app_name"];
-								newAppData["app_url"] = appData["app_url"];
-								newAppData["server"] = appData["server"];
-								newAppData["check_time"] = current_time;
-								newAppData["status"] = "DOWN";
-								return newAppData;
-							});
+								.then(text => {
+									let status = "DOWN";
 
-					})).then(data1 => {
-						data1.map(newAppData => resultSet.push(newAppData));
-						res.send(resultSet);
+									// This is random status generator. Need to remove when app urls are working
+									// const statuses = ["UP", "DOWN"];
+									// let status = statuses[Math.floor(Math.random() * statuses.length)];
+									if (text.includes("UP") || text.toLowerCase().includes("running")) {
+										status = "UP";
+									}
+									const newAppData = {};
+									newAppData["APP_ID"] = appData["app_id"];
+									newAppData["app_name"] = appData["app_name"];
+									newAppData["app_url"] = appData["app_url"];
+									newAppData["server"] = appData["server"];
+									newAppData["check_time"] = current_time;
+									newAppData["status"] = status;
+									return newAppData;
+								})
+								.catch(err => {
+									const newAppData = {};
+									newAppData["APP_ID"] = appData["app_id"];
+									newAppData["app_name"] = appData["app_name"];
+									newAppData["app_url"] = appData["app_url"];
+									newAppData["server"] = appData["server"];
+									newAppData["check_time"] = current_time;
+									newAppData["status"] = "DOWN";
+									return newAppData;
+								});
+
+						})).then(data1 => {
+							data1.map(newAppData => resultSet.push(newAppData));
+							res.send(resultSet);
+						});
 					});
-				});
 
 			}
 			else {
@@ -107,28 +108,28 @@ exports.findAllApplications = (req, res) => {
 			required: true
 		}]
 	})
-	.then(data => {
-		res.send(data);
-	})
-	.catch(err => {
-		res.status(500).send({
-			message:
-				err.message || "Some error occurred while retrieving applications."
+		.then(data => {
+			res.send(data);
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "Some error occurred while retrieving applications."
+			});
 		});
-	});
 };
 
 exports.findApplications = (req, res) => {
 	Applications.findAll()
-	.then(data => {
-		res.send(data);
-	})
-	.catch(err => {
-		res.status(500).send({
-			message:
-				err.message || "Some error occurred while retrieving applications."
+		.then(data => {
+			res.send(data);
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "Some error occurred while retrieving applications."
+			});
 		});
-	});
 };
 
 exports.findApplicationStatus = (req, res) => {
@@ -136,46 +137,46 @@ exports.findApplicationStatus = (req, res) => {
 	Applications.findAll({
 		where: { app_id: req.params.appId },
 	})
-	.then(data => {
-		if (data.length > 0) {
-			appUrl = data[0]["dataValues"]["app_url"]
-			fetch(appUrl)
-				.then(res => res.text())
-				.then(text => {
-					console.log("fetched", text)
-					let status = "DOWN";
+		.then(data => {
+			if (data.length > 0) {
+				appUrl = data[0]["dataValues"]["app_url"]
+				fetch(appUrl)
+					.then(res => res.text())
+					.then(text => {
+						console.log("fetched", text)
+						let status = "DOWN";
 
 
-					if (text.includes("UP") || text.toLowerCase().includes("running") || text.toLowerCase().includes("username")) {
-						status = "UP";
-					}
+						if (text.includes("UP") || text.toLowerCase().includes("running") || text.toLowerCase().includes("username")) {
+							status = "UP";
+						}
 
-					res.send('"status": "' + status + '"')
-				});
-		}
-		else {
-			throw Error("Application not found");
-		}
-	})
-	.catch(err => {
-		res.status(500).send({
-			message:
-				err.message || "Some error occurred while retrieving applications."
+						res.send('"status": "' + status + '"')
+					});
+			}
+			else {
+				throw Error("Application not found");
+			}
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "Some error occurred while retrieving applications."
+			});
 		});
-	});
 };
 
 exports.findAppStatus = (req, res) => {
 	AppStatus.findAll()
-	.then(data => {
-		res.send(data);
-	})
-	.catch(err => {
-		res.status(500).send({
-			message:
-				err.message || "Some error occurred while retrieving applications."
+		.then(data => {
+			res.send(data);
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "Some error occurred while retrieving applications."
+			});
 		});
-	});
 };
 
 // exports.saveAppStatus = (req, res) => {
@@ -257,73 +258,76 @@ exports.findAppStatus = (req, res) => {
 //   };
 
 exports.saveAppStatus = (req, res) => {
-	Applications.findAll()
-	.then(data => {
-		for (const [key, value] of Object.entries(data)) {
-			// console.log(value["dataValues"]);
-			appUrl = value["dataValues"]["app_url"]
-			let status = "DOWN";
-			fetch(appUrl)
-			.then(res => {
-				if (!res.ok) {
-					throw Error("Got HTTP Status: " + res.status);
-				}
-				return res.text();
-			})
-			.then(text => {
-				console.log("fetched")
-				if (text.includes("UP") || text.toLowerCase().includes("running") || text.toLowerCase().includes("username")) {
-					status = "UP";
-				}
-
-				sql.connect(sqlConfig, function (err) {
-					if (err) console.log(err);
-					const request = new sql.Request();
-					const insertQuery = "insert into app_status values(" + value["dataValues"]["app_id"]
-						+ ", GETDATE(), '"
-						+ status + "')"
-					request.query(insertQuery, function (err, recordset) {
-						if (err) console.log(err)
-						// res.send(recordset.recordsets[0]);
-					});
-					console.log(insertQuery);
-				});
-			})
-			.catch(err => {
-				console.log(err);
-				sql.connect(sqlConfig, function (err) {
-					if (err) console.log(err);
-					const request = new sql.Request();
-					const insertQuery = "insert into app_status values(" + value["dataValues"]["app_id"]
-						+ ", GETDATE(), '"
-						+ status + "')"
-					request.query(insertQuery, function (err, recordset) {
-						if (err) console.log(err)
-						// res.send(recordset.recordsets[0]);
-					});
-					console.log(insertQuery);
-				});
-			});
-		}
-
-		res && res.send("OK");
+	console.log("Calling saveAppStatus ")
+	Applications.findAll({
+		raw: true,
 	})
-	.catch(err => {
-		throw err
-	});
+		.then(data => {
+			data.map(value => {
+				console.log("fetching data for : ", value["server"], value["app_name"]);
+				appUrl = value["app_url"]
+				let status = "DOWN";
+				fetch(appUrl)
+					.then(res => {
+						if (!res.ok) {
+							throw Error("Got HTTP Status: " + res.status);
+						}
+						return res.text();
+					})
+					.then(text => {
+						console.log("fetched")
+						if (text.includes("UP") || text.toLowerCase().includes("running") || text.toLowerCase().includes("username")) {
+							status = "UP";
+						}
+
+						sql.connect(sqlConfig, function (err) {
+							if (err) console.log(err);
+							const request = new sql.Request();
+							const insertQuery = "insert into app_status values(" + value["app_id"]
+								+ ", GETDATE(), '"
+								+ status + "')"
+							request.query(insertQuery, function (err, recordset) {
+								if (err) console.log(err)
+								// res.send(recordset.recordsets[0]);
+							});
+							console.log(insertQuery);
+						});
+					})
+					.catch(err => {
+						console.log(err);
+						sql.connect(sqlConfig, function (err) {
+							if (err) console.log(err);
+							const request = new sql.Request();
+							const insertQuery = "insert into app_status values(" + value["app_id"]
+								+ ", GETDATE(), '"
+								+ status + "')"
+							request.query(insertQuery, function (err, recordset) {
+								if (err) console.log(err)
+								// res.send(recordset.recordsets[0]);
+							});
+							console.log(insertQuery);
+						});
+					});
+			});
+
+			res && res.send("OK");
+		})
+		.catch(err => {
+			throw err
+		});
 };
 
 exports.findAllJobs = (req, res) => {
 	Jobs.findAll()
-	.then(data => {
-		res.send(data);
-	})
-	.catch(err => {
-		res.status(500).send({
-			message:
-				err.message || "Some error occurred while retrieving jobs."
+		.then(data => {
+			res.send(data);
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "Some error occurred while retrieving jobs."
+			});
 		});
-	});
 };
 
 exports.updateJob = (req, res) => {
@@ -332,23 +336,27 @@ exports.updateJob = (req, res) => {
 	Jobs.update(req.body, {
 		where: { id: job_id }
 	})
-	.then(num => {
-		if (num == 1) {
-			res.send({
-				message: "Job was updated successfully."
+		.then(num => {
+			if (num == 1) {
+				JobsLogs.create(req.body)
+					.then(data => {
+						console.log("Jobs log created");
+					});
+				res.send({
+					message: "Job was updated successfully."
+				});
+			} else {
+				res.send({
+					message: "Cannot update Job with id=${job_id}. Maybe job was not found or req.body is empty!"
+				});
+			}
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "Some error occurred while retrieving jobs."
 			});
-		} else {
-			res.send({
-				message: "Cannot update Job with id=${job_id}. Maybe job was not found or req.body is empty!"
-			});
-		}
-	})
-	.catch(err => {
-		res.status(500).send({
-			message:
-				err.message || "Some error occurred while retrieving jobs."
 		});
-	});
 };
 
 exports.deleteJob = (req, res) => {
@@ -357,47 +365,56 @@ exports.deleteJob = (req, res) => {
 	Jobs.destroy({
 		where: { id: job_id }
 	})
-	.then(num => {
-		if (num == 1) {
-			res.send({
-				message: "Job was deleted successfully."
+		.then(num => {
+			if (num == 1) {
+				JobsLogs.create(req.body)
+					.then(data => {
+						console.log("Jobs log created");
+					});
+				res.send({
+					message: "Job was deleted successfully."
+				});
+			} else {
+				res.send({
+					message: "Cannot delete Job with id=${job_id}. Maybe job was not found!"
+				});
+			}
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "Some error occurred while retrieving jobs."
 			});
-		} else {
-			res.send({
-				message: "Cannot delete Job with id=${job_id}. Maybe job was not found!"
-			});
-		}
-	})
-	.catch(err => {
-		res.status(500).send({
-			message:
-				err.message || "Some error occurred while retrieving jobs."
 		});
-	});
 };
 
 exports.addJob = (req, res) => {
 	Jobs.create(req.body)
-	.then(data => {
-		res.send(data);
-	})
-	.catch(err => {
-		res.status(500).send({
-			message:
-				err.message || "Some error occurred while retrieving jobs."
+		.then(data => {
+			JobsLogs.create(req.body)
+				.then(data => {
+					// res.send(data);
+					console.log("Jobs log created");
+				});
+			res.send(data);
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "Some error occurred while retrieving jobs."
+			});
 		});
-	});
 };
 
 exports.findAllBatchJobs = (req, res) => {
 	BatchJobs.findAll()
-	.then(data => {
-		res.send(data);
-	})
-	.catch(err => {
-		res.status(500).send({
-			message:
-				err.message || "Some error occurred while retrieving jobs."
+		.then(data => {
+			res.send(data);
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "Some error occurred while retrieving jobs."
+			});
 		});
-	});
 };

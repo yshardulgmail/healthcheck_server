@@ -1,6 +1,7 @@
 module.exports = app => {
   const healthcheck = require("../controllers/healthcheck.controller.js");
   const mail = require("../controllers/healthcheck.mail.controller");
+  const login = require("../controllers/healthcheck.login.controller");
 
   var router = require("express").Router();
 
@@ -19,6 +20,8 @@ module.exports = app => {
   router.get("/batchJobs", healthcheck.findAllBatchJobs);
   
   router.post("/sendMail", mail.sendMail);
+
+  router.post("/checkUser", login.checkUser);
 
   app.use('/api/healthcheck', router);
 };
