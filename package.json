@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_TLS_REJECT_UNAUTHORIZED=0 && node server.js",
-    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 && npx nodemon server.js"
+    "start": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 && node server.js",
+    "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 && npx nodemon server.js"
   },
   "keywords": [
     "node js",
@@ -20,6 +20,7 @@
   "author": "Monika Shukla",
   "dependencies": {
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "date-and-time": "^2.4.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
