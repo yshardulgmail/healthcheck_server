@@ -33,66 +33,73 @@ exports.findAllAppStatus = (req, res) => {
 
 		request.query("select app.app_id APP_ID, app_name, app_url, server, check_time, status from applications app inner join app_status s on app.app_id = s.app_id order by check_time", function (err, recordset) {
 
-			if (err) console.log(err)
-			const resultSet = [...recordset.recordsets[0]];
-
-			if (manual == "true") {
-				let current_time = "";
-				request.query("select GETDATE() as check_time", function (err, timeStr) {
-					current_time = timeStr["recordset"][0]["check_time"];
-					console.log(current_time);
-				});
-
-				Applications.findAll({
-					raw: true,
-				})
-					.then((data) => {
-						Promise.all(data.map(appData => {
-							appUrl = appData["app_url"];
-							return fetch(appUrl).then(res1 => {
-								if (!res1.ok) {
-									throw Error("Got HTTP Status: " + res1.status);
-								}
-								return res1.text();
-							})
-								.then(text => {
-									let status = "DOWN";
-
-									// This is random status generator. Need to remove when app urls are working
-									// const statuses = ["UP", "DOWN"];
-									// let status = statuses[Math.floor(Math.random() * statuses.length)];
-									if (text.includes("UP") || text.toLowerCase().includes("running")) {
-										status = "UP";
-									}
-									const newAppData = {};
-									newAppData["APP_ID"] = appData["app_id"];
-									newAppData["app_name"] = appData["app_name"];
-									newAppData["app_url"] = appData["app_url"];
-									newAppData["server"] = appData["server"];
-									newAppData["check_time"] = current_time;
-									newAppData["status"] = status;
-									return newAppData;
-								})
-								.catch(err => {
-									const newAppData = {};
-									newAppData["APP_ID"] = appData["app_id"];
-									newAppData["app_name"] = appData["app_name"];
-									newAppData["app_url"] = appData["app_url"];
-									newAppData["server"] = appData["server"];
-									newAppData["check_time"] = current_time;
-									newAppData["status"] = "DOWN";
-									return newAppData;
-								});
-
-						})).then(data1 => {
-							data1.map(newAppData => resultSet.push(newAppData));
-							res.send(resultSet);
-						});
-					});
-
+			if (err) {
+				console.log(err);
+				res.status(500);
+				res.setHeader('Content-Type', 'application/json');
+				res.send(JSON.stringify({ message: "Failed to connect to DB server!!" }));
 			}
 			else {
-				res.send(resultSet);
+				const resultSet = [...recordset.recordsets[0]];
+
+				if (manual == "true") {
+					let current_time = "";
+					request.query("select GETDATE() as check_time", function (err, timeStr) {
+						current_time = timeStr["recordset"][0]["check_time"];
+						console.log(current_time);
+					});
+
+					Applications.findAll({
+						raw: true,
+					})
+						.then((data) => {
+							Promise.all(data.map(appData => {
+								appUrl = appData["app_url"];
+								return fetch(appUrl).then(res1 => {
+									if (!res1.ok) {
+										throw Error("Got HTTP Status: " + res1.status);
+									}
+									return res1.text();
+								})
+									.then(text => {
+										let status = "DOWN";
+
+										// This is random status generator. Need to remove when app urls are working
+										// const statuses = ["UP", "DOWN"];
+										// let status = statuses[Math.floor(Math.random() * statuses.length)];
+										if (text.includes("UP") || text.toLowerCase().includes("running")) {
+											status = "UP";
+										}
+										const newAppData = {};
+										newAppData["APP_ID"] = appData["app_id"];
+										newAppData["app_name"] = appData["app_name"];
+										newAppData["app_url"] = appData["app_url"];
+										newAppData["server"] = appData["server"];
+										newAppData["check_time"] = current_time;
+										newAppData["status"] = status;
+										return newAppData;
+									})
+									.catch(err => {
+										const newAppData = {};
+										newAppData["APP_ID"] = appData["app_id"];
+										newAppData["app_name"] = appData["app_name"];
+										newAppData["app_url"] = appData["app_url"];
+										newAppData["server"] = appData["server"];
+										newAppData["check_time"] = current_time;
+										newAppData["status"] = "DOWN";
+										return newAppData;
+									});
+
+							})).then(data1 => {
+								data1.map(newAppData => resultSet.push(newAppData));
+								res.send(resultSet);
+							});
+						});
+
+				}
+				else {
+					res.send(resultSet);
+				}
 			}
 		});
 	});
@@ -313,7 +320,12 @@ exports.saveAppStatus = (req, res) => {
 			res && res.send("OK");
 		})
 		.catch(err => {
-			throw err
+			console.log(err);
+			if (res) {
+				res.status(500);
+				res.setHeader('Content-Type', 'application/json');
+				res.send(JSON.stringify({ message: "Failed to connect to server!!" }));
+			}
 		});
 };
 
@@ -324,8 +336,7 @@ exports.findAllJobs = (req, res) => {
 		})
 		.catch(err => {
 			res.status(500).send({
-				message:
-					err.message || "Some error occurred while retrieving jobs."
+				message: "Failed to connect to DB server!!"
 			});
 		});
 };
@@ -353,8 +364,7 @@ exports.updateJob = (req, res) => {
 		})
 		.catch(err => {
 			res.status(500).send({
-				message:
-					err.message || "Some error occurred while retrieving jobs."
+				message: "Failed to connect to DB server!!"
 			});
 		});
 };
@@ -382,8 +392,7 @@ exports.deleteJob = (req, res) => {
 		})
 		.catch(err => {
 			res.status(500).send({
-				message:
-					err.message || "Some error occurred while retrieving jobs."
+				message: "Failed to connect to DB server!!"
 			});
 		});
 };
@@ -400,8 +409,7 @@ exports.addJob = (req, res) => {
 		})
 		.catch(err => {
 			res.status(500).send({
-				message:
-					err.message || "Some error occurred while retrieving jobs."
+				message: "Failed to connect to DB server!!"
 			});
 		});
 };
@@ -413,8 +421,7 @@ exports.findAllBatchJobs = (req, res) => {
 		})
 		.catch(err => {
 			res.status(500).send({
-				message:
-					err.message || "Some error occurred while retrieving jobs."
+				message: "Failed to connect to DB server!!"
 			});
 		});
 };
